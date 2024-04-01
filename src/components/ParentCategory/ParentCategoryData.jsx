@@ -1,10 +1,15 @@
-import {Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import {useQuery} from "@tanstack/react-query";
 import {getAllParentCategories} from "../../services/parentCategoryService.js";
 import {getFormattedDate} from "../../utilities/utils.js";
-import {Delete} from "@mui/icons-material";
 import {useDeleteParentCategory} from "../../hooks/ParentCategory/useDeleteParentCategory.js";
 import toast from "react-hot-toast";
+import {
+    DataTable,
+    DataTableRow,
+    DataTableRowCell,
+    DeleteEntryButton,
+    TableParentContainer
+} from "../DataForms/TableComponents.jsx";
 
 function ParentCategoryData() {
 
@@ -27,46 +32,24 @@ function ParentCategoryData() {
     }
 
     return (
-        <Box sx={{
-            overflow: "auto"
-        }}>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Parent Categories</TableCell>
-                            <TableCell>MongoId</TableCell>
-                            <TableCell>CreatedOn</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {!isLoading && data.data.parentCategories.map((row) => (
-                            <TableRow
-                                key={row.name}
-                                sx={{'&:last-child td, &:last-child th': {border: 0}}}
-                            >
-                                <TableCell component="th" scope="row">
-                                    {row.name}
-                                </TableCell>
-                                <TableCell component="th" scope="row">
-                                    {row._id}
-                                </TableCell>
-                                <TableCell component="th" scope="row">
-                                    {getFormattedDate(row.createdOn)}
-                                </TableCell>
-                                <TableCell component="th" scope="row">
-                                    <Button variant={"outlined"} startIcon={<Delete/>} disabled={isDeleting}
-                                            onClick={() => handleDeleteParentCategory(row._id)}>
-                                        Delete
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Box>
+        <TableParentContainer>
+            <DataTable tableHeaders={["Parent Categories", "MongoId", "Created On", "Actions"]}>
+                {!isLoading && data.data.parentCategories.map((row) => (
+                    <DataTableRow keyId={row._id} key={row._id}>
+                        <DataTableRowCell cellData={row.name}/>
+                        <DataTableRowCell cellData={row._id}/>
+                        <DataTableRowCell cellData={getFormattedDate(row.createdOn)}/>
+                        <DataTableRowCell cellData={
+                            <DeleteEntryButton
+                                handleDelete={handleDeleteParentCategory}
+                                identifier={row._id}
+                                disabled={isDeleting}
+                            />}
+                        />
+                    </DataTableRow>
+                ))}
+            </DataTable>
+        </TableParentContainer>
     );
 }
 

@@ -7,7 +7,7 @@ function FormParent({currentType, children}) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            width: "50%",
+            width: "100%",
             overflow: "auto"
         }}
              borderRadius={2}>

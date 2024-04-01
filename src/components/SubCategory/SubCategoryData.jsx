@@ -1,10 +1,15 @@
-import {Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import {useQuery} from "@tanstack/react-query";
 import {getFormattedDate} from "../../utilities/utils.js";
-import {Delete} from "@mui/icons-material";
 import toast from "react-hot-toast";
 import {getAllSubCategories} from "../../services/subCategoryService.js";
 import {useDeleteSubCategory} from "../../hooks/SubCategory/useDeleteSubCategory.js";
+import {
+    DataTable,
+    DataTableRow,
+    DataTableRowCell,
+    DeleteEntryButton,
+    TableParentContainer
+} from "../DataForms/TableComponents.jsx";
 
 function SubCategoryData() {
 
@@ -27,50 +32,27 @@ function SubCategoryData() {
     }
 
     return (
-        <Box sx={{
-            overflow: "auto"
-        }}>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Sub Categories</TableCell>
-                            <TableCell>Parent Categories</TableCell>
-                            <TableCell>MongoId</TableCell>
-                            <TableCell>CreatedOn</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {!isLoading && !error && data.data.subCategories.map((row) => (
-                            <TableRow
-                                key={row.name}
-                                sx={{'&:last-child td, &:last-child th': {border: 0}}}
-                            >
-                                <TableCell component="th" scope="row">
-                                    {row.name}
-                                </TableCell>
-                                <TableCell component="th" scope="row">
-                                    {row.parentCategory.map(item => item.name).join(", ")}
-                                </TableCell>
-                                <TableCell component="th" scope="row">
-                                    {row._id}
-                                </TableCell>
-                                <TableCell component="th" scope="row">
-                                    {getFormattedDate(row.createdOn)}
-                                </TableCell>
-                                <TableCell component="th" scope="row">
-                                    <Button variant={"outlined"} startIcon={<Delete/>} disabled={isDeleting}
-                                            onClick={() => handleDeleteSubCategory(row._id)}>
-                                        Delete
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Box>
+        <TableParentContainer>
+            <DataTable tableHeaders={["Sub Categories", "Cover Image", "Parent Categories", "MongoId", "Created On", "Actions"]}>
+
+                {!isLoading && !error && data.data.subCategories.map((row) => (
+                    <DataTableRow keyId={row._id} key={row._id}>
+                        <DataTableRowCell cellData={row.name}/>
+                        <DataTableRowCell cellData={<img src={row.coverImage} height={30}/> }/>
+                        <DataTableRowCell cellData={row.parentCategory.map(item => item.name).join(", ")}/>
+                        <DataTableRowCell cellData={row._id}/>
+                        <DataTableRowCell cellData={getFormattedDate(row.createdOn)}/>
+                        <DataTableRowCell cellData={
+                            <DeleteEntryButton
+                                handleDelete={handleDeleteSubCategory}
+                                identifier={row._id}
+                                disabled={isDeleting}
+                            />
+                        }/>
+                    </DataTableRow>
+                ))}
+            </DataTable>
+        </TableParentContainer>
     );
 }
 

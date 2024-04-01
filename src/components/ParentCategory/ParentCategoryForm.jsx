@@ -1,13 +1,15 @@
-import {Box, Button, TextField} from "@mui/material";
+import {Divider} from "@mui/material";
 import {useForm} from "react-hook-form";
 import ParentCategoryData from "./ParentCategoryData.jsx";
 import {useCreateParentCategory} from "../../hooks/ParentCategory/useCreateParentCategory.js";
 import toast from "react-hot-toast";
+import FormAndDataContainer from "../DataForms/FormAndDataContainer.jsx";
+import Form from "../DataForms/Form.jsx";
+import {FormSubmitButton, TextFieldController} from "../DataForms/FormFields.jsx";
 
 function ParentCategoryForm() {
 
-    const {register, handleSubmit, reset, formState} = useForm();
-    const {errors} = formState;
+    const {control, handleSubmit, reset, formState: {errors}} = useForm();
 
     const {isCreating, createParentCategory} = useCreateParentCategory();
 
@@ -24,38 +26,24 @@ function ParentCategoryForm() {
     }
 
     return (
-        <Box sx={{
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            gap: "2rem",
-            overflow: "auto",
-            padding: "2rem"
-        }}>
-            <Box component={"form"} onSubmit={handleSubmit(onSubmit)} sx={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-                gap: "2rem"
-            }}>
-                <TextField
-                    id={"parentCategory"}
+        <FormAndDataContainer>
+            <Form handleSubmit={handleSubmit} onSubmit={onSubmit}>
+                <TextFieldController
+                    control={control}
                     name={"parentCategory"}
-                    variant={"outlined"}
+                    id={"parentCategory"}
                     label={"Parent Category"}
-                    {...register('parentCategory', {
-                        required: 'Please provide a parent category'
-                    })}
+                    defaultValue={""}
+                    requiredMessage={"Please provide a parent category"}
+                    disabled={isCreating}
                     error={!!errors.parentCategory}
                     helperText={errors.parentCategory?.message}
-                    disabled={isCreating}
                 />
-                <Button type={"submit"} disabled={isCreating} color={"primary"} variant={"contained"}>
-                    Create
-                </Button>
-            </Box>
+                <FormSubmitButton disabled={isCreating} buttonText={"Create"}/>
+            </Form>
+            <Divider orientation="vertical" variant="middle" flexItem/>
             <ParentCategoryData/>
-        </Box>
+        </FormAndDataContainer>
     );
 }
 

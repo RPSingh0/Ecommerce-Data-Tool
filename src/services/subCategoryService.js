@@ -12,10 +12,11 @@ export async function getAllSubCategories() {
     return data;
 }
 
-export async function createSubCategoryService({name, parentCategory}) {
+export async function createSubCategoryService({name, coverImage, parentCategory}) {
 
     let {status, data} = await axios.post(`${URL}/create`, {
         name: name,
+        coverImage: coverImage,
         parentCategory: parentCategory
     });
 

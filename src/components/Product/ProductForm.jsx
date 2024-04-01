@@ -1,25 +1,28 @@
-import {
-    Box,
-    Button,
-    FormControl,
-    FormHelperText,
-    InputAdornment,
-    InputLabel,
-    MenuItem,
-    Select,
-    TextField
-} from "@mui/material";
-import {Controller, useForm} from "react-hook-form";
+import {Divider, MenuItem} from "@mui/material";
+import {useForm} from "react-hook-form";
 import {useQuery} from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import ProductData from "./ProductData.jsx";
 import {useCreateProduct} from "../../hooks/Product/useCreateProduct.js";
 import {getAllParentCategories} from "../../services/parentCategoryService.js";
 import {getAllSubCategories} from "../../services/subCategoryService.js";
+import FormAndDataContainer from "../DataForms/FormAndDataContainer.jsx";
+import Form from "../DataForms/Form.jsx";
+import {
+    FormSubmitButton, InputFileUploadMultipleImages, InputFileUploadSingleCoverImage,
+    MultilineTextFieldController,
+    MultiSelectController,
+    TextFieldController
+} from "../DataForms/FormFields.jsx";
+import {useState} from "react";
+import {uploadImageAndGetDownloadUrl} from "../../services/imageUploadService.js";
+import {v4} from "uuid";
 
 function ProductForm() {
 
     const {handleSubmit, reset, formState: {errors}, control} = useForm();
+    const [productCoverImage, setProductCoverImage] = useState('');
+    const [productImages, setProductImages] = useState([]);
 
     const {isLoading: isParentCategoryLoading, data: parentCategoryData, error: parentCategoryError} = useQuery({
         queryKey: ['parentCategories'],
@@ -33,17 +36,37 @@ function ProductForm() {
 
     const {isCreating, createProduct} = useCreateProduct();
 
-    function onSubmit(data) {
+    async function onSubmit(data) {
+
+        const uploadingImageToast = toast.loading('Uploading Images...')
+        let productCoverImageURL = null;
+        let productImagesURLS = null;
+
+        try {
+            const path = v4();
+            productCoverImageURL = await uploadImageAndGetDownloadUrl('product', `${path}-${data.name}/cover`, productCoverImage);
+            productImagesURLS = await uploadImageAndGetDownloadUrl('product', `${path}-${data.name}/all`, productImages);
+        } catch (error) {
+            toast.error('Image upload failed!');
+        } finally {
+            toast.dismiss(uploadingImageToast);
+            toast.success('Image uploaded!');
+        }
+
         createProduct({
             name: data.name,
             description: data.description,
             price: data.price,
+            coverImage: productCoverImageURL[0],
+            productImages: productImagesURLS,
             parentCategory: data.parentCategory,
             subCategory: data.subCategory
         }, {
             onSuccess: () => {
                 toast.success("Product added!");
-                reset()
+                reset();
+                setProductCoverImage("");
+                setProductImages([]);
             },
             onError: (error) => {
                 toast.error(error.message);
@@ -52,155 +75,99 @@ function ProductForm() {
     }
 
     return (
-        <Box sx={{
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            gap: "2rem",
-            overflow: "auto",
-            padding: "2rem"
-        }}>
-            <Box component={"form"} onSubmit={handleSubmit(onSubmit)} sx={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-                gap: "2rem"
-            }}>
-                <Controller
+        <FormAndDataContainer>
+            <Form handleSubmit={handleSubmit} onSubmit={onSubmit}>
+                <TextFieldController
+                    control={control}
                     name={"name"}
-                    control={control}
+                    id={"name"}
+                    label={"Product Name"}
                     defaultValue={""}
-                    rules={{
-                        required: "Please enter a product name"
-                    }}
-                    render={({field}) => (
-                        <FormControl>
-                            <TextField
-                                {...field}
-                                id={"name"}
-                                name={"name"}
-                                variant={"outlined"}
-                                label={"Product Name"}
-                                disabled={isCreating}
-                                error={!!errors.name}
-                                helperText={errors.name?.message}
-                            />
-                        </FormControl>
-                    )}
+                    requiredMessage={"Please enter a product name"}
+                    disabled={isCreating}
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
                 />
-                <Controller
+                <MultilineTextFieldController
+                    control={control}
                     name={"description"}
-                    control={control}
+                    id={"description"}
+                    label={"Product Description"}
+                    rows={3}
                     defaultValue={""}
-                    rules={{
-                        required: "Please enter a product description"
-                    }}
-                    render={({field}) => (
-                        <FormControl>
-                            <TextField
-                                {...field}
-                                id={"description"}
-                                name={"description"}
-                                variant={"outlined"}
-                                label={"Product Description"}
-                                multiline
-                                rows={3}
-                                disabled={isCreating}
-                                error={!!errors.description}
-                                helperText={errors.description?.message}
-                            />
-                        </FormControl>
-                    )}
+                    requiredMessage={"Please enter a product description"}
+                    disabled={isCreating}
+                    error={!!errors.description}
+                    helperText={errors.description?.message}
                 />
-                <Controller
+                <TextFieldController
+                    control={control}
                     name={"price"}
-                    control={control}
+                    id={"price"}
+                    label={"Product Price"}
                     defaultValue={""}
-                    rules={{
-                        required: "Please enter a product price"
-                    }}
-                    render={({field}) => (
-                        <FormControl>
-                            <TextField
-                                {...field}
-                                id={"price"}
-                                name={"price"}
-                                variant={"outlined"}
-                                label={"Product Price"}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-                                }}
-                                disabled={isCreating}
-                                error={!!errors.price}
-                                helperText={errors.price?.message}
-                            />
-                        </FormControl>
-                    )}
+                    requiredMessage={"Please enter a product price"}
+                    disabled={isCreating}
+                    error={!!errors.price}
+                    helperText={errors.price?.message}
                 />
-                <Controller
+                <MultiSelectController
+                    control={control}
                     name={"parentCategory"}
-                    control={control}
+                    id={"parentCategory"}
+                    label={"Parent Category"}
                     defaultValue={[]}
-                    rules={{
-                        required: "Please select a parent category"
-                    }}
-                    render={({field}) => (
-                        <FormControl>
-                            <InputLabel id={"parentCategory"}>Parent Category</InputLabel>
-                            <Select
-                                {...field}
-                                labelId={"parentCategory"}
-                                label={"Parent Category"}
-                                defaultValue={[]}
-                                multiple
-                                disabled={isCreating}
-                                error={!!errors.parentCategory}
-                            >
-                                {!isParentCategoryLoading && !parentCategoryError && parentCategoryData.data.parentCategories.map(c =>
-                                    <MenuItem value={c._id} key={c.name}>{c.name}</MenuItem>
-                                )}
-                            </Select>
-                            <FormHelperText htmlFor="parentCategory" error={!!errors.parentCategory}>
-                                {errors.parentCategory?.message}
-                            </FormHelperText>
-                        </FormControl>
+                    requiredMessage={"Please select a parent category"}
+                    disabled={isCreating}
+                    error={!!errors.parentCategory}
+                    helperText={errors.parentCategory?.message}
+                >
+                    {!isParentCategoryLoading && !parentCategoryError && parentCategoryData.data.parentCategories.map(c =>
+                        <MenuItem value={c._id} key={c.name}>{c.name}</MenuItem>
                     )}
-                />
-                <Controller
+                </MultiSelectController>
+                <MultiSelectController
+                    control={control}
                     name={"subCategory"}
-                    control={control}
+                    id={"subCategory"}
+                    label={"Sub Category"}
                     defaultValue={[]}
-                    rules={{
-                        required: "Please select a sub category"
-                    }}
-                    render={({field}) => (
-                        <FormControl>
-                            <InputLabel id={"subCategory"}>Sub Category</InputLabel>
-                            <Select
-                                {...field}
-                                labelId={"subCategory"}
-                                label={"Sub Category"}
-                                defaultValue={[]}
-                                multiple
-                                disabled={isCreating}
-                                error={!!errors.subCategory}
-                            >
-                                {!isSubCategoryLoading && !subCategoryError && subCategoryData.data.subCategories.map(c =>
-                                    <MenuItem value={c._id} key={c.name}>{c.name}</MenuItem>
-                                )}
-                            </Select>
-                            <FormHelperText htmlFor="parentCategory" error={!!errors.subCategory}>
-                                {errors.subCategory?.message}
-                            </FormHelperText>
-                        </FormControl>
+                    requiredMessage={"Please select a sub category"}
+                    disabled={isCreating}
+                    error={!!errors.subCategory}
+                    helperText={errors.subCategory?.message}
+                >
+                    {!isSubCategoryLoading && !subCategoryError && subCategoryData.data.subCategories.map(c =>
+                        <MenuItem value={c._id} key={c.name}>{c.name}</MenuItem>
                     )}
+                </MultiSelectController>
+                <InputFileUploadSingleCoverImage
+                    control={control}
+                    coverImage={productCoverImage}
+                    setCoverImage={setProductCoverImage}
+                    name={"productCoverImage"}
+                    id={"productCoverImage"}
+                    label={"Product Cover Image"}
+                    requiredMessage={"Please select a cover image for product"}
+                    error={!!errors.productCoverImage}
+                    helperText={errors.productCoverImage?.message}
                 />
-                <Button type={"submit"} color={"primary"} variant={"contained"}>
-                    Create
-                </Button>
-            </Box>
+                <InputFileUploadMultipleImages
+                    control={control}
+                    productImages={productImages}
+                    setProductImages={setProductImages}
+                    name={"productImages"}
+                    id={"productImages"}
+                    label={"Product Images"}
+                    requiredMessage={"Please select product images"}
+                    error={!!errors.productImages}
+                    helperText={errors.productImages?.message}
+                />
+                <FormSubmitButton disabled={isCreating} buttonText={"Create"}/>
+            </Form>
+            <Divider orientation="vertical" variant="middle" flexItem/>
             <ProductData/>
-        </Box>
+        </FormAndDataContainer>
     );
 }
 
