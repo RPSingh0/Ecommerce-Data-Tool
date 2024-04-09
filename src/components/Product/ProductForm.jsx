@@ -56,7 +56,9 @@ function ProductForm() {
         createProduct({
             name: data.name,
             description: data.description,
+            keywords: data.keywords.split('\n'),
             price: data.price,
+            brand: data.brand,
             coverImage: productCoverImageURL[0],
             productImages: productImagesURLS,
             parentCategory: data.parentCategory,
@@ -100,6 +102,18 @@ function ProductForm() {
                     error={!!errors.description}
                     helperText={errors.description?.message}
                 />
+                <MultilineTextFieldController
+                    control={control}
+                    name={"keywords"}
+                    id={"keywords"}
+                    label={"Product keywords"}
+                    rows={3}
+                    defaultValue={""}
+                    requiredMessage={"Please enter product's keywords"}
+                    disabled={isCreating}
+                    error={!!errors.keywords}
+                    helperText={errors.keywords?.message}
+                />
                 <TextFieldController
                     control={control}
                     name={"price"}
@@ -110,6 +124,17 @@ function ProductForm() {
                     disabled={isCreating}
                     error={!!errors.price}
                     helperText={errors.price?.message}
+                />
+                <TextFieldController
+                    control={control}
+                    name={"brand"}
+                    id={"brand"}
+                    label={"Product Brand"}
+                    defaultValue={""}
+                    requiredMessage={"Please enter a product brand"}
+                    disabled={isCreating}
+                    error={!!errors.brand}
+                    helperText={errors.brand?.message}
                 />
                 <MultiSelectController
                     control={control}

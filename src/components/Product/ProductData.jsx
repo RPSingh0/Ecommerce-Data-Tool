@@ -34,18 +34,25 @@ function ProductData() {
     return (
         <TableParentContainer>
             <DataTable
-                tableHeaders={["Product Name", "Description", "Price", "Cover Image", "Product Images", "Parent Category", "Sub Category", "MongoId", "Created On", "Actions"]}>
+                tableHeaders={["Product Name", "Description", "Keywords", "Price", "Brand", "Cover Image", "Product Images", "Parent Category", "Sub Category", "Actions"]}>
                 {!isLoading && !error && data.data.products.map((row) => (
                     <DataTableRow keyId={row._id} key={row._id}>
                         <DataTableRowCell cellData={row.name}/>
                         <DataTableRowCell cellData={row.description}/>
+                        <DataTableRowCell cellData={
+                            <ul>
+                                {row.keywords.map(item => <li>{item}</li>)}
+                            </ul>
+                        }/>
                         <DataTableRowCell cellData={row.price}/>
-                        <DataTableRowCell cellData={<img src={row.coverImage} height={30}/> }/>
-                        <DataTableRowCell cellData={row.productImages.map(item => <img src={item} height={30} key={item}/>) }/>
+                        <DataTableRowCell cellData={row.brand}/>
+                        <DataTableRowCell cellData={<img src={row.coverImage} height={30}/>}/>
+                        <DataTableRowCell
+                            cellData={row.productImages.map(item => <img src={item} height={30} key={item}/>)}/>
                         <DataTableRowCell cellData={row.parentCategory.map(item => item.name).join(", ")}/>
                         <DataTableRowCell cellData={row.subCategory.map(item => item.name).join(", ")}/>
-                        <DataTableRowCell cellData={row._id}/>
-                        <DataTableRowCell cellData={getFormattedDate(row.createdOn)}/>
+                        {/*<DataTableRowCell cellData={row._id}/>*/}
+                        {/*<DataTableRowCell cellData={getFormattedDate(row.createdOn)}/>*/}
                         <DataTableRowCell cellData={
                             <DeleteEntryButton
                                 handleDelete={handleDeleteSubCategory}

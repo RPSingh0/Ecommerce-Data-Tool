@@ -12,12 +12,14 @@ export async function getAllProductService() {
     return data;
 }
 
-export async function createProductService({name, description, price, coverImage, productImages, parentCategory, subCategory}) {
+export async function createProductService({name, description, keywords, price, brand, coverImage, productImages, parentCategory, subCategory}) {
 
     let {status, data} = await axios.post(`${URL}/create`, {
         name: name,
         description: description,
+        keywords: keywords,
         price: price,
+        brand: brand,
         coverImage: coverImage,
         productImages: productImages,
         parentCategory: parentCategory,
