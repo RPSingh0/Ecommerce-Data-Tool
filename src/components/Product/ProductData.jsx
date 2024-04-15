@@ -50,7 +50,7 @@ function ProductData() {
                         <DataTableRowCell
                             cellData={row.productImages.map(item => <img src={item} height={30} key={item}/>)}/>
                         <DataTableRowCell cellData={row.parentCategory.map(item => item.name).join(", ")}/>
-                        <DataTableRowCell cellData={row.subCategory.map(item => item.name).join(", ")}/>
+                        <DataTableRowCell cellData={row.subCategory.name}/>
                         {/*<DataTableRowCell cellData={row._id}/>*/}
                         {/*<DataTableRowCell cellData={getFormattedDate(row.createdOn)}/>*/}
                         <DataTableRowCell cellData={

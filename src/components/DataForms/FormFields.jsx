@@ -1,5 +1,4 @@
 import {
-    Box,
     Button,
     FormControl,
     FormHelperText,
@@ -11,7 +10,6 @@ import {
     Typography
 } from "@mui/material";
 import {Controller} from "react-hook-form";
-import {useState} from "react";
 import {Circle} from "@mui/icons-material";
 
 const StyledFormControlFilePicker = styled(FormControl)(() => ({
@@ -82,6 +80,35 @@ export function MultilineTextFieldController({
                 error={error}
                 helperText={helperText}
             />
+        </FormControl>)}
+    />);
+}
+
+export function SelectController({
+    control, name, id, label, defaultValue, requiredMessage, disabled, error, helperText, children
+}) {
+    return (<Controller
+        name={name}
+        control={control}
+        defaultValue={defaultValue}
+        rules={{
+            required: requiredMessage
+        }}
+        render={({field}) => (<FormControl>
+            <InputLabel id={id}>{label}</InputLabel>
+            <Select
+                {...field}
+                labelId={id}
+                label={label}
+                defaultValue={defaultValue}
+                disabled={disabled}
+                error={error}
+            >
+                {children}
+            </Select>
+            <FormHelperText htmlFor={id} error={error}>
+                {helperText}
+            </FormHelperText>
         </FormControl>)}
     />);
 }

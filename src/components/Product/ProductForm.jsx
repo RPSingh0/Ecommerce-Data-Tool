@@ -11,7 +11,7 @@ import Form from "../DataForms/Form.jsx";
 import {
     FormSubmitButton, InputFileUploadMultipleImages, InputFileUploadSingleCoverImage,
     MultilineTextFieldController,
-    MultiSelectController,
+    MultiSelectController, SelectController,
     TextFieldController
 } from "../DataForms/FormFields.jsx";
 import {useState} from "react";
@@ -151,12 +151,12 @@ function ProductForm() {
                         <MenuItem value={c._id} key={c.name}>{c.name}</MenuItem>
                     )}
                 </MultiSelectController>
-                <MultiSelectController
+                <SelectController
                     control={control}
                     name={"subCategory"}
                     id={"subCategory"}
                     label={"Sub Category"}
-                    defaultValue={[]}
+                    defaultValue={""}
                     requiredMessage={"Please select a sub category"}
                     disabled={isCreating}
                     error={!!errors.subCategory}
@@ -165,7 +165,7 @@ function ProductForm() {
                     {!isSubCategoryLoading && !subCategoryError && subCategoryData.data.subCategories.map(c =>
                         <MenuItem value={c._id} key={c.name}>{c.name}</MenuItem>
                     )}
-                </MultiSelectController>
+                </SelectController>
                 <InputFileUploadSingleCoverImage
                     control={control}
                     coverImage={productCoverImage}
